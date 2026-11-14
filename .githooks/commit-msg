@@ -1,0 +1,3 @@
+#!/bin/sh
+# Bricht einen Commit ab, dessen Nachricht E-Mail-Adressen, Passwörter o. Ä. enthält.
+exec sh "$(git rev-parse --show-toplevel)/scripts/datenschutz.sh" --nachricht "$1"

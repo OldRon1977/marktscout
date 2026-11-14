@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  schedule:
+    # Täglich, um Änderungen an den Seiten zu erkennen / daily, to detect site changes
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - run: go vet ./...
+      - if: runner.os == 'Linux'
+        run: sh scripts/datenschutz.sh --alle
+      - run: go test -count=1 ./...
+
+  ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-testergebnisse
+          path: test-results/
+
+  build:
+    needs: [test, ui]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+      - run: sh scripts/build.sh
+      - uses: actions/upload-artifact@v7
+        with:
+          name: marktscout
+          path: dist/
+
+  # Nur bei Versions-Tags: Release mit beiden Programmdateien anlegen
+  # Only for version tags: create the release with both executables
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v7
+        with:
+          name: marktscout
+          path: dist/
+      - run: cd dist && sha256sum marktscout-linux-amd64 marktscout-windows-amd64.exe > SHA256SUMS
+      - run: sh scripts/release-notes.sh "$GITHUB_REF_NAME" > notes.md
+      - run: >
+          gh release create "$GITHUB_REF_NAME"
+          --title "$GITHUB_REF_NAME"
+          --notes-file notes.md
+          dist/marktscout-linux-amd64 dist/marktscout-windows-amd64.exe dist/SHA256SUMS
+        env:
+          GH_TOKEN: ${{ github.token }}

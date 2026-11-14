@@ -1,0 +1,5 @@
+#!/bin/sh
+# Bricht einen Commit ab, der Daten enthält, die einen Nutzer verraten
+# (E-Mail-Adressen, Passwörter, Sitzungscookies, Schlüssel, Browserprofile).
+# Aktivierung (einmalig pro Klon): git config core.hooksPath .githooks
+exec sh "$(git rev-parse --show-toplevel)/scripts/datenschutz.sh" --staged

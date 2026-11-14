@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marktscout</title>
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="kopf">
+  <h1>Marktscout</h1>
+  <div id="jobstatus" class="jobstatus" aria-live="polite"></div>
+  <div class="kopf-aktionen">
+    <button type="button" id="btn-einstellungen" class="leise">Einstellungen</button>
+    <button type="button" id="btn-beenden" class="leise">Programm beenden</button>
+  </div>
+</header>
+
+<div class="rahmen">
+  <nav class="seitenleiste" aria-label="Suchaufträge">
+    <button type="button" id="btn-neu" class="haupt">+ Neuer Suchauftrag</button>
+    <ul id="auftragsliste" class="auftragsliste"></ul>
+  </nav>
+
+  <main id="inhalt" class="inhalt">
+    <section id="leer" class="leer">
+      <h2>Willkommen</h2>
+      <p>Lege links einen Suchauftrag an: Suchbegriff, Orte in Deutschland und den Niederlanden, Preisrahmen.</p>
+    </section>
+
+    <section id="ansicht" hidden>
+      <div class="ansicht-kopf">
+        <div>
+          <h2 id="a-name"></h2>
+          <p id="a-zusammenfassung" class="leise-text"></p>
+          <p id="a-lauf" class="leise-text"></p>
+          <pre id="a-fehler" class="fehlerkasten" hidden></pre>
+        </div>
+        <div class="knopfreihe">
+          <button type="button" id="btn-suchen" class="haupt">Jetzt suchen</button>
+          <button type="button" id="btn-status">Status prüfen</button>
+          <button type="button" id="btn-bearbeiten">Bearbeiten</button>
+          <button type="button" id="btn-loeschen" class="gefahr">Löschen</button>
+        </div>
+      </div>
+      <div class="werkzeuge">
+        <label><input type="checkbox" id="chk-ausgeblendete"> Ausgeblendete zeigen</label>
+        <span id="zaehler" class="leise-text"></span>
+      </div>
+      <div id="ergebnisse"></div>
+    </section>
+
+    <section id="formular" hidden>
+      <h2 id="f-titel">Suchauftrag</h2>
+      <form id="auftragsform" novalidate>
+        <div id="f-fehler" class="fehlerkasten" role="alert" hidden></div>
+        <fieldset>
+          <legend>Suche</legend>
+          <label>Name <input name="name" id="f-name" placeholder="z. B. RTX 2080"></label>
+          <label>Suchbegriff <input name="suchbegriff" id="f-suchbegriff" required placeholder="rtx 2080"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Orte Deutschland (kleinanzeigen.de)</legend>
+          <div class="ortsuche">
+            <label>Ort oder Postleitzahl
+              <input id="f-ort-eingabe" autocomplete="off" placeholder="Köln, 41372 …" aria-autocomplete="list" aria-controls="f-ort-vorschlaege">
+            </label>
+            <label class="kurz">Umkreis km <input id="f-ort-radius" type="number" min="1" max="200" value="10"></label>
+            <ul id="f-ort-vorschlaege" class="vorschlaege" role="listbox" hidden></ul>
+          </div>
+          <ul id="f-orte-de" class="ortliste"></ul>
+        </fieldset>
+
+        <fieldset>
+          <legend>Orte Niederlande (marktplaats.nl)</legend>
+          <div class="ortsuche">
+            <label>Postleitzahl <input id="f-plz" placeholder="5911" maxlength="7"></label>
+            <label class="kurz">Umkreis km <input id="f-plz-radius" type="number" min="1" max="200" value="10"></label>
+            <button type="button" id="btn-plz-add">Hinzufügen</button>
+          </div>
+          <ul id="f-orte-nl" class="ortliste"></ul>
+        </fieldset>
+
+        <fieldset>
+          <legend>Preis</legend>
+          <div class="zeile">
+            <label>Suchpreis € <input id="f-suchpreis" type="number" min="0" step="1" placeholder="leer = ohne Grenze"></label>
+            <label>Toleranz <input id="f-toleranz" type="number" min="0" step="0.5" value="0"></label>
+            <label>Art <select id="f-toleranzart"><option value="prozent">%</option><option value="euro">€</option></select></label>
+            <label>Mindestpreis € <input id="f-mindestpreis" type="number" min="0" step="1" placeholder="leer = ohne"></label>
+          </div>
+          <div class="zeile">
+            <label class="haken"><input type="checkbox" id="f-vb"> VB-Spielraum</label>
+            <label>VB % <input id="f-vbprozent" type="number" min="0" max="99" step="1" value="10"></label>
+          </div>
+          <p id="f-preisinfo" class="leise-text"></p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Stichworte</legend>
+          <label>Pflichtwörter (durch Komma getrennt) <input id="f-pflicht" placeholder="2080"></label>
+          <label>Eigene Ausschlusswörter (durch Komma getrennt) <input id="f-ausschluss" placeholder="2070, 1080"></label>
+          <label>Wirkung eigener Ausschlusswörter
+            <select id="f-ausschlussmodus">
+              <option value="markieren">markieren</option>
+              <option value="titel">Titel filtern, Text markieren</option>
+              <option value="hart">hart filtern (Titel und Text)</option>
+            </select>
+          </label>
+          <label class="haken"><input type="checkbox" id="f-standard"> Standard-Ausschlussliste verwenden</label>
+          <label>Wirkung der Standardliste
+            <select id="f-standardmodus">
+              <option value="markieren">markieren</option>
+              <option value="titel">Titel filtern, Text markieren</option>
+              <option value="hart">hart filtern (Titel und Text)</option>
+            </select>
+          </label>
+          <p id="f-standardliste" class="leise-text"></p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Ausführung</legend>
+          <div class="zeile">
+            <label>Intervall Minuten <input id="f-intervall" type="number" min="0" step="5" value="0"></label>
+            <label>Seiten je Ort <input id="f-seiten" type="number" min="1" max="20" value="4"></label>
+          </div>
+          <p class="leise-text">Intervall 0 = keine Zeitsteuerung, sonst mindestens 10 Minuten.</p>
+        </fieldset>
+
+        <div class="knopfreihe">
+          <button type="submit" class="haupt" id="btn-speichern">Speichern</button>
+          <button type="button" id="btn-abbrechen">Abbrechen</button>
+        </div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<dialog id="dlg-einstellungen">
+  <form method="dialog" id="einstellungsform">
+    <h2>Einstellungen</h2>
+    <label class="haken"><input type="checkbox" id="e-zeit"> Zeitsteuerung</label>
+    <label class="haken"><input type="checkbox" id="e-desktop"> Desktopmeldung bei neuen Anzeigen</label>
+    <label class="haken"><input type="checkbox" id="e-ton"> Ton bei neuen Anzeigen</label>
+    <div class="knopfreihe">
+      <button type="button" id="btn-meldungtest">Meldung testen</button>
+      <a id="lnk-log" class="knopf" href="/api/log" download>Logdatei speichern</a>
+    </div>
+    <p id="e-info" class="leise-text"></p>
+    <div class="knopfreihe">
+      <button type="submit" class="haupt">Schließen</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-frage">
+  <form method="dialog">
+    <p id="frage-text"></p>
+    <div class="knopfreihe">
+      <button value="ja" class="gefahr" id="frage-ja">Ja</button>
+      <button value="nein" id="frage-nein">Abbrechen</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="beendet" class="beendet" hidden>
+  <h2>Marktscout wurde beendet.</h2>
+  <p>Dieses Fenster kann geschlossen werden.</p>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

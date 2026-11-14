@@ -1,0 +1,10 @@
+name: Frage / Question
+description: Frage zur Nutzung. / Question about usage.
+labels: [question]
+body:
+  - type: textarea
+    id: frage
+    attributes:
+      label: Frage / Question
+    validations:
+      required: true

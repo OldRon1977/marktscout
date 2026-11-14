@@ -1,0 +1,53 @@
+name: Fehler / Bug
+description: Etwas funktioniert nicht wie beschrieben. / Something does not work as documented.
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Steht unten in der Oberfläche. / Shown at the bottom of the UI.
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Betriebssystem / Operating system
+      options:
+        - Linux
+        - Windows
+    validations:
+      required: true
+  - type: dropdown
+    id: bereich
+    attributes:
+      label: Bereich / Area
+      options:
+        - kleinanzeigen.de
+        - marktplaats.nl
+        - Oberfläche / UI
+        - Benachrichtigung / Notification
+        - Sonstiges / Other
+    validations:
+      required: true
+  - type: textarea
+    id: ablauf
+    attributes:
+      label: Was hast du gemacht, was ist passiert? / What did you do, what happened?
+      placeholder: |
+        1. Suchauftrag „RTX 2080“, Orte Köln + Venlo
+        2. Suche gestartet
+        3. Marktplaats liefert 0 Treffer
+    validations:
+      required: true
+  - type: textarea
+    id: erwartet
+    attributes:
+      label: Was hast du erwartet? / What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Logdatei / Log file
+      description: In der Oberfläche „Logdatei speichern“ und die Datei hier hineinziehen. / Use "Save log file" in the UI and drag the file here.

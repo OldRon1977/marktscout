@@ -1,0 +1,52 @@
+# --- Daten, die einen Nutzer verraten: niemals versionieren ---
+.env
+.env.*
+.auth/
+*storage-state*.json
+browser-profil/
+cookies.txt
+*.har
+
+# --- Laufzeitdaten des Tools (Datenbank, Cache, Protokolle) ---
+daten/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.log
+
+# --- Build-Ausgaben ---
+dist/
+build/
+*.exe
+*.test
+*.out
+coverage/
+__pycache__/
+*.pyc
+.venv/
+
+# --- Testausgaben ---
+test-results/
+playwright-report/
+
+# --- Abhängigkeiten ---
+node_modules/
+vendor/
+
+# --- Editor und Betriebssystem ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Temporär ---
+tmp/
+*.tmp
+
+# --- Lokale Tool-Konfiguration ---
+.claude/

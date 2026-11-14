@@ -1,0 +1,11 @@
+{
+  "name": "marktscout-ui-tests",
+  "private": true,
+  "description": "Oberflächentests (Playwright) für Marktscout",
+  "scripts": {
+    "test:ui": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}

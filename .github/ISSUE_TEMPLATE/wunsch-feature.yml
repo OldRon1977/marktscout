@@ -1,0 +1,15 @@
+name: Wunsch / Feature
+description: Neue Funktion oder Änderung vorschlagen. / Suggest a new feature or change.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: wozu
+    attributes:
+      label: Was willst du erreichen? / What do you want to achieve?
+      description: Der Zweck, nicht die Umsetzung. / The goal, not the implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: vorschlag
+    attributes:
+      label: Wie könnte es aussehen? / How could it work?
